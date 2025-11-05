@@ -6,7 +6,7 @@ function Datafetching() {
     const [loading, setLoading] = useState(true); // ✅ loading state
 
     useEffect(() => {
-        fetch("https://picsum.photos/v2/list?page=1&limit=600")
+        fetch("https://picsum.photos/v2/list?page=1&limit=1000")
             .then((res) => {
                 if (!res.ok) {
                     throw new Error("Network issue");
