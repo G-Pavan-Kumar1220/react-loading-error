@@ -1,64 +1,59 @@
 import React, { useEffect, useState } from 'react'
 
 function Datafetching() {
-    const [images,setimages] = useState([])
-    const [isonline,setisonline] = useState(navigator.onLine)
+    const [images, setImages] = useState([]);
+    const [error, setError] = useState("");   // ✅ error state
+    const [loading, setLoading] = useState(true); // ✅ loading state
 
-    useEffect(()=>{
-        const handelOnline =()=> setisonline(true)
-        const handelOOfline =()=> setisonline(false)
-
-        window.addEventListener("online",handelOnline)
-        window.addEventListener("offline",handelOOfline)
-
-        return()=>{
-            window.removeEventListener("online",handelOnline)
-            window.removeEventListener("ofline",handelOOfline)
-        }
-    },[])
-
-    useEffect(()=>{
+    useEffect(() => {
         fetch("https://picsum.photos/v2/list?page=1&limit=600")
-        .then((res)=>{
-            if(!res.ok){
-                return(
-                    <div>
-                        <h2 style={{color:"red"}}>Error Please Check the InterNet Connection...</h2>
-                    </div>
-                )
-            }
-            return res.json()
-            
-        })
-        .then((result=>setimages(result)))
-        .catch((e)=>{
-            console.log("error api is not working",e)
-        })
-    },[])
-    if(!isonline){
-        return(
-            <h2 style={{color:"red"}}>Please Check the Net connection</h2>
-        )
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error("Network issue");
+                }
+                return res.json();
+            })
+            .then((result) => {
+                setImages(result);
+                setError("");   // clear errors if success
+            })
+            .catch(() => {
+                setError("Failed to fetch the data. Please check your internet connection.");
+            })
+            .finally(() => {
+                setLoading(false);  // ✅ stop loading
+            });
+    }, []);
+
+    // ✅ Show loading text
+    if (loading) {
+        return <h2>Loading...</h2>;
     }
 
-
-    if(images.length === 0){
-        return(
-            <h2>Loding.....</h2>
-        )
+    // ✅ Show error message
+    if (error) {
+        return <h2 style={{ color: "red" }}>{error}</h2>;
     }
 
-  return (
-    <>
-    {images.map((item)=>(
-        <img
-        style={{ width: "250px", height:"250px", margin: "10px",backgroundColor:"white",border:"3px solid gray" }}
-         key={item.id}
-          src={item.download_url} 
-          alt="images" />
-    ))}
-    </>
-  )
+    // ✅ Show images when fetch is successful
+    return (
+        <>
+            {images.map((item) => (
+                <img
+                    key={item.id}
+                    src={item.download_url}
+                    alt="images"
+                    style={{
+                        width: "250px",
+                        height: "250px",
+                        margin: "10px",
+                        backgroundColor: "white",
+                        border: "3px solid gray"
+                    }}
+                />
+            ))}
+        </>
+    );
 }
 
 export default Datafetching;
